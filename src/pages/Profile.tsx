@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -109,6 +109,9 @@ const ProfilePage = () => {
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [justSaved, setJustSaved] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (profile || user) {
@@ -117,15 +120,21 @@ const ProfilePage = () => {
     }
   }, [profile, user]);
 
+  type UpsertProfileArgs = {
+    overrideAvatarUrl?: string;
+  };
+
   const upsertProfile = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (args?: UpsertProfileArgs) => {
       if (!user) return;
+
+      const finalAvatarUrl = args?.overrideAvatarUrl ?? avatarUrl;
 
       const { error } = await supabase.from("profiles").upsert(
         {
           user_id: user.id,
           name: name || null,
-          avatar_url: avatarUrl || null,
+          avatar_url: finalAvatarUrl || null,
         },
         { onConflict: "user_id" },
       );
@@ -294,19 +303,91 @@ const ProfilePage = () => {
                     placeholder="Link to an image for your avatar"
                   />
                   <p className="text-[11px] text-muted-foreground md:text-xs">
-                    Paste a URL to an image. File uploads can be added later with storage.
+                    You can upload an image or paste a direct image URL.
                   </p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <Button
-                    onClick={() => upsertProfile.mutate()}
-                    disabled={upsertProfile.isPending || (!name.trim() && !avatarUrl.trim())}
-                  >
-                    {upsertProfile.isPending ? "Saving..." : "Save changes"}
-                  </Button>
-                  {justSaved && (
-                    <p className="text-xs text-muted-foreground animate-fade-in">
-                      Profile updated.
+                <div className="flex flex-col gap-3">
+                  <div className="flex justify-between gap-3 flex-wrap">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingAvatar || upsertProfile.isPending}
+                    >
+                      {isUploadingAvatar ? "Uploading..." : "Upload new avatar"}
+                    </Button>
+                    <div className="flex flex-col items-end gap-1">
+                      <Button
+                        onClick={() => upsertProfile.mutate({})}
+                        disabled={upsertProfile.isPending || (!name.trim() && !avatarUrl.trim())}
+                      >
+                        {upsertProfile.isPending ? "Saving..." : "Save changes"}
+                      </Button>
+                      {justSaved && (
+                        <p className="text-xs text-muted-foreground animate-fade-in">
+                          Profile updated.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (event) => {
+                      const file = event.target.files?.[0];
+                      if (!file || !user) return;
+
+                      setUploadError(null);
+
+                      const maxSizeMb = 5;
+                      if (file.size > maxSizeMb * 1024 * 1024) {
+                        setUploadError(`Please choose an image smaller than ${maxSizeMb}MB.`);
+                        event.target.value = "";
+                        return;
+                      }
+
+                      if (!file.type.startsWith("image/")) {
+                        setUploadError("Please upload an image file (PNG, JPG, etc.).");
+                        event.target.value = "";
+                        return;
+                      }
+
+                      setIsUploadingAvatar(true);
+
+                      try {
+                        const fileExt = file.name.split(".").pop() || "png";
+                        const filePath = `user-${user.id}/${Date.now()}.${fileExt}`;
+
+                        const { error: uploadError } = await supabase.storage
+                          .from("avatars")
+                          .upload(filePath, file, { upsert: true });
+
+                        if (uploadError) {
+                          throw uploadError;
+                        }
+
+                        const { data: publicUrlData } = supabase.storage
+                          .from("avatars")
+                          .getPublicUrl(filePath);
+                        const publicUrl = publicUrlData.publicUrl;
+
+                        setAvatarUrl(publicUrl);
+                        upsertProfile.mutate({ overrideAvatarUrl: publicUrl });
+                      } catch (error) {
+                        console.error("Error uploading avatar:", error);
+                        setUploadError("There was a problem uploading your avatar. Please try again.");
+                      } finally {
+                        setIsUploadingAvatar(false);
+                        event.target.value = "";
+                      }
+                    }}
+                  />
+                  {uploadError && (
+                    <p className="text-[11px] text-destructive/80 md:text-xs">
+                      {uploadError}
                     </p>
                   )}
                 </div>
