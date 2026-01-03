@@ -8,6 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import useAuthState from "@/hooks/use-auth-state";
 
@@ -21,6 +30,74 @@ export interface Task {
   created_at: string;
 }
 
+interface PaginationControlsProps {
+  page: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+}
+
+const PaginationControls = ({ page, pageCount, onPageChange }: PaginationControlsProps) => {
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage < 1 || nextPage > pageCount || nextPage === page) return;
+    onPageChange(nextPage);
+  };
+
+  const items: (number | "ellipsis")[] = [];
+
+  for (let i = 1; i <= pageCount; i++) {
+    if (i === 1 || i === pageCount || Math.abs(i - page) <= 1) {
+      items.push(i);
+    } else if (items[items.length - 1] !== "ellipsis") {
+      items.push("ellipsis");
+    }
+  }
+
+  return (
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handlePageChange(page - 1);
+            }}
+            aria-disabled={page === 1}
+          />
+        </PaginationItem>
+        {items.map((item, index) => (
+          <PaginationItem key={index}>
+            {item === "ellipsis" ? (
+              <PaginationEllipsis />
+            ) : (
+              <PaginationLink
+                href="#"
+                isActive={item === page}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(item);
+                }}
+              >
+                {item}
+              </PaginationLink>
+            )}
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationNext
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              handlePageChange(page + 1);
+            }}
+            aria-disabled={page === pageCount}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+  );
+};
+
 const Index = () => {
   const { user, loading } = useAuthState();
   const { toast } = useToast();
@@ -32,27 +109,60 @@ const Index = () => {
   const [status, setStatus] = useState<TaskStatus>("pending");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | TaskStatus>("all");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
 
   if (!loading && !user) {
     navigate("/auth", { replace: true });
   }
 
-  const { data: tasks = [], isLoading } = useQuery<Task[]>({
-    queryKey: ["tasks"],
+  const {
+    data: tasksData,
+    isLoading,
+  } = useQuery<{ data: Task[]; count: number | null } | null>({
+    queryKey: [
+      "tasks",
+      {
+        page,
+        pageSize,
+        statusFilter,
+        search,
+      },
+    ],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("tasks")
-        .select("id, title, description, status, created_at")
+        .select("id, title, description, status, created_at", { count: "exact" })
         .order("created_at", { ascending: false });
+
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter);
+      }
+
+      if (search.trim()) {
+        const searchValue = `%${search.trim()}%`;
+        query = query.or(
+          `title.ilike.${searchValue},description.ilike.${searchValue}`,
+        );
+      }
+
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, count, error } = await query.range(from, to);
 
       if (error) {
         throw error;
       }
 
-      return data as Task[];
+      return { data: (data as Task[]) ?? [], count: count ?? 0 };
     },
     enabled: !!user,
   });
+
+  const tasks = tasksData?.data ?? [];
+  const totalCount = tasksData?.count ?? 0;
+  const pageCount = Math.max(1, Math.ceil(totalCount / pageSize));
 
   const createTask = useMutation({
     mutationFn: async () => {
@@ -127,17 +237,8 @@ const Index = () => {
   });
 
   const filteredTasks = useMemo(() => {
-    return tasks.filter((task) => {
-      const matchesSearch =
-        search.trim().length === 0 ||
-        task.title.toLowerCase().includes(search.toLowerCase()) ||
-        (task.description ?? "").toLowerCase().includes(search.toLowerCase());
-
-      const matchesStatus = statusFilter === "all" || task.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [tasks, search, statusFilter]);
+    return tasks;
+  }, [tasks]);
 
   const handleToggleStatus = (task: Task) => {
     updateTask.mutate({
@@ -238,12 +339,18 @@ const Index = () => {
                 <Input
                   placeholder="Search by title or description"
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
                   className="md:max-w-sm"
                 />
                 <Select
                   value={statusFilter}
-                  onValueChange={(value) => setStatusFilter(value as "all" | TaskStatus)}
+                  onValueChange={(value) => {
+                    setStatusFilter(value as "all" | TaskStatus);
+                    setPage(1);
+                  }}
                 >
                   <SelectTrigger className="w-[160px]">
                     <SelectValue placeholder="Filter status" />
@@ -256,53 +363,95 @@ const Index = () => {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
               {isLoading ? (
                 <p className="text-sm text-muted-foreground">Loading tasks...</p>
               ) : filteredTasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No tasks match your criteria yet.</p>
-              ) : (
-                <ul className="space-y-3">
-                  {filteredTasks.map((task) => (
-                    <li
-                      key={task.id}
-                      className="flex items-start justify-between gap-3 rounded-md border bg-card/60 p-3 transition-all hover-scale animate-fade-in"
+                search.trim() || statusFilter !== "all" ? (
+                  <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
+                    <p className="font-medium">No tasks match your filters</p>
+                    <p className="text-sm text-muted-foreground">
+                      Try adjusting your search or status filter.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearch("");
+                        setStatusFilter("all");
+                        setPage(1);
+                      }}
                     >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{task.title}</span>
-                          <Badge variant={task.status === "completed" ? "default" : "secondary"}>
-                            {task.status === "completed" ? "Completed" : "Pending"}
-                          </Badge>
+                      Clear filters
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
+                    <p className="font-medium">No tasks yet</p>
+                    <p className="text-sm text-muted-foreground">
+                      Create your first task to get started.
+                    </p>
+                  </div>
+                )
+              ) : (
+                <>
+                  <ul className="space-y-3">
+                    {filteredTasks.map((task, index) => (
+                      <li
+                        key={task.id}
+                        className="flex items-start justify-between gap-3 rounded-md border bg-card/60 p-3 transition-all hover-scale animate-fade-in"
+                        style={{ animationDelay: `${index * 40}ms` }}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-sm">
+                              {task.title}
+                            </span>
+                            <Badge variant={task.status === "completed" ? "default" : "secondary"}>
+                              {task.status === "completed" ? "Completed" : "Pending"}
+                            </Badge>
+                          </div>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">
+                              {task.description}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Created {new Date(task.created_at).toLocaleString()}
+                          </p>
                         </div>
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground">{task.description}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          Created {new Date(task.created_at).toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleToggleStatus(task)}
-                          className="w-28"
-                        >
-                          {task.status === "pending" ? "Mark done" : "Mark pending"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => deleteTask.mutate(task.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                        <div className="flex flex-col items-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleToggleStatus(task)}
+                            className="w-28"
+                          >
+                            {task.status === "pending" ? "Mark done" : "Mark pending"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => deleteTask.mutate(task.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {pageCount > 1 && (
+                    <div className="pt-4 border-t">
+                      <PaginationControls
+                        page={page}
+                        pageCount={pageCount}
+                        onPageChange={setPage}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
