@@ -22,10 +22,6 @@ const useAuthState = (): AuthContextValue => {
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
-        navigate("/", { replace: true });
-      }
-
       if (event === "SIGNED_OUT") {
         navigate("/auth", { replace: true });
       }
