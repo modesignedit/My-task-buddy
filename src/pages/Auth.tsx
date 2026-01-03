@@ -112,9 +112,9 @@ const AuthPage = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="login">Login</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2" aria-busy={submitting}>
+              <TabsTrigger value="login" disabled={submitting}>Login</TabsTrigger>
+              <TabsTrigger value="signup" disabled={submitting}>Sign Up</TabsTrigger>
             </TabsList>
             <TabsContent value="login" className="space-y-4 pt-4">
               <div className="space-y-2">
