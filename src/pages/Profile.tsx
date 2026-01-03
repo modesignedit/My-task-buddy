@@ -108,6 +108,7 @@ const ProfilePage = () => {
 
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [justSaved, setJustSaved] = useState(false);
 
   useEffect(() => {
     if (profile || user) {
@@ -134,6 +135,8 @@ const ProfilePage = () => {
       }
     },
     onSuccess: () => {
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
     },
   });
@@ -185,7 +188,13 @@ const ProfilePage = () => {
               <CardDescription>All tasks you have created.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
-              <span className="text-3xl font-semibold">{isCountsLoading ? "-" : totalTasks}</span>
+              <span className="text-3xl font-semibold">
+                {isCountsLoading ? (
+                  <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : (
+                  totalTasks
+                )}
+              </span>
               <Badge variant="secondary">Total</Badge>
             </CardContent>
           </Card>
@@ -197,7 +206,11 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
               <span className="text-3xl font-semibold text-primary">
-                {isCountsLoading ? "-" : completedTasks}
+                {isCountsLoading ? (
+                  <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : (
+                  completedTasks
+                )}
               </span>
               <Badge>Done</Badge>
             </CardContent>
@@ -209,7 +222,13 @@ const ProfilePage = () => {
               <CardDescription>Tasks still in progress.</CardDescription>
             </CardHeader>
             <CardContent className="flex items-baseline justify-between">
-              <span className="text-3xl font-semibold">{isCountsLoading ? "-" : pendingTasks}</span>
+              <span className="text-3xl font-semibold">
+                {isCountsLoading ? (
+                  <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : (
+                  pendingTasks
+                )}
+              </span>
               <Badge variant="outline">Pending</Badge>
             </CardContent>
           </Card>
@@ -259,13 +278,18 @@ const ProfilePage = () => {
                     Paste a URL to an image. File uploads can be added later with storage.
                   </p>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-1">
                   <Button
                     onClick={() => upsertProfile.mutate()}
                     disabled={upsertProfile.isPending || (!name.trim() && !avatarUrl.trim())}
                   >
                     {upsertProfile.isPending ? "Saving..." : "Save changes"}
                   </Button>
+                  {justSaved && (
+                    <p className="text-xs text-muted-foreground animate-fade-in">
+                      Profile updated.
+                    </p>
+                  )}
                 </div>
               </div>
             </CardContent>
