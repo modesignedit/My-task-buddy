@@ -265,7 +265,7 @@ const Index = () => {
       description="Capture your brain dumps, ship your tasks, and keep your flow clean."
     >
       <section className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <Card className="glass-panel animate-enter">
+        <Card className="glass-panel accent-ring animate-enter">
           <CardHeader className="space-y-1 p-4 md:p-6">
             <CardTitle className="text-base font-semibold md:text-lg">Add task, clear brain</CardTitle>
             <CardDescription className="text-xs md:text-sm">
@@ -320,7 +320,7 @@ const Index = () => {
           </CardContent>
         </Card>
 
-        <Card className="glass-panel space-y-3 animate-enter">
+        <Card className="glass-panel accent-ring space-y-3 animate-enter">
           <CardHeader className="space-y-2 p-4 md:p-6">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
@@ -371,7 +371,7 @@ const Index = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="self-start"
+                  className="self-start hover-scale"
                   onClick={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
                 >
                   Try again
@@ -387,6 +387,7 @@ const Index = () => {
                   <Button
                     variant="outline"
                     size="sm"
+                    className="hover-scale"
                     onClick={() => {
                       setSearch("");
                       setStatusFilter("all");
@@ -439,14 +440,14 @@ const Index = () => {
                           size="sm"
                           variant="outline"
                           onClick={() => handleToggleStatus(task)}
-                          className="w-24 text-xs md:w-28 md:text-sm"
+                          className="w-24 text-xs md:w-28 md:text-sm hover-scale"
                         >
                           {task.status === "pending" ? "Mark done" : "Mark pending"}
                         </Button>
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="text-[11px] text-destructive hover:text-destructive md:text-xs"
+                          className="text-[11px] text-destructive hover:text-destructive md:text-xs hover-scale"
                           onClick={() => deleteTask.mutate(task.id)}
                         >
                           Delete
