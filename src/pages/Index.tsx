@@ -271,12 +271,12 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card/60 backdrop-blur">
-        <div className="container flex items-center justify-between py-4">
+        <div className="container flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
             <h1 className="text-xl font-semibold tracking-tight">Task Dashboard</h1>
             <p className="text-sm text-muted-foreground">Manage your tasks and track your progress.</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:justify-end">
             <ThemeToggle />
             <Button variant="ghost" asChild>
               <Link to="/profile" className="hover-scale">
