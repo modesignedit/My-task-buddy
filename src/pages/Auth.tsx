@@ -158,7 +158,7 @@ const AuthPage = () => {
                   placeholder="••••••••"
                 />
               </div>
-              <Button className="w-full bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground shadow-md shadow-primary/40" onClick={handleSignIn} disabled={submitting}>
+              <Button variant="neon" className="w-full" onClick={handleSignIn} disabled={submitting}>
                 {submitting ? "Beaming you in..." : "Login"}
               </Button>
               <p className="text-center text-xs text-muted-foreground">
@@ -188,7 +188,7 @@ const AuthPage = () => {
                   placeholder="At least 6 characters"
                 />
               </div>
-              <Button className="w-full bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground shadow-md shadow-primary/40" onClick={handleSignUp} disabled={submitting}>
+              <Button variant="neon" className="w-full" onClick={handleSignUp} disabled={submitting}>
                 {submitting ? "Spinning up your space..." : "Sign up"}
               </Button>
               <p className="text-center text-xs text-muted-foreground">

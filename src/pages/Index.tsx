@@ -310,7 +310,8 @@ const Index = () => {
                 </Select>
               </div>
               <Button
-                className="ml-auto w-full bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground shadow-lg shadow-primary/40 hover-scale sm:w-auto"
+                variant="neon"
+                className="ml-auto w-full sm:w-auto hover-scale"
                 onClick={() => createTask.mutate()}
                 disabled={createTask.isPending || !title.trim()}
               >
