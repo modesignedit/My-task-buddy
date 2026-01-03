@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import useAuthState from "@/hooks/use-auth-state";
+import ThemeToggle from "@/components/ThemeToggle";
 
 
 export type TaskStatus = "pending" | "completed";
@@ -262,6 +263,7 @@ const Index = () => {
             <p className="text-sm text-muted-foreground">Manage your tasks and track your progress.</p>
           </div>
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Button variant="ghost" asChild>
               <Link to="/profile" className="hover-scale">
                 Profile
