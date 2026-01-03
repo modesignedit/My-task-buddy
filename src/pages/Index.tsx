@@ -21,7 +21,6 @@ import { useToast } from "@/hooks/use-toast";
 import useAuthState from "@/hooks/use-auth-state";
 import ThemeToggle from "@/components/ThemeToggle";
 
-
 export type TaskStatus = "pending" | "completed";
 
 export interface Task {
@@ -401,8 +400,16 @@ const Index = () => {
                   <div className="h-4 w-1/2 rounded-md bg-muted/60 animate-pulse" />
                 </div>
               ) : tasksError ? (
-                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-                  There was a problem loading your tasks. Please try again.
+                <div className="flex flex-col gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                  <p>There was a problem loading your tasks.</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="self-start"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+                  >
+                    Try again
+                  </Button>
                 </div>
               ) : filteredTasks.length === 0 ? (
                 search.trim() || statusFilter !== "all" ? (

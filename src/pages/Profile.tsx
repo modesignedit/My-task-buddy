@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import ThemeToggle from "@/components/ThemeToggle";
 import useAuthState from "@/hooks/use-auth-state";
-
+import { LayoutShell } from "@/components/LayoutShell";
+import { useToast } from "@/hooks/use-toast";
 interface TaskCountRow {
   status: "pending" | "completed";
   count: number;
@@ -26,6 +27,7 @@ interface Profile {
 
 const ProfilePage = () => {
   const { user, loading } = useAuthState();
+  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: counts = [], isLoading: isCountsLoading, error: countsError } = useQuery<TaskCountRow[]>({
@@ -147,6 +149,14 @@ const ProfilePage = () => {
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2000);
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
+      toast({ title: "Profile updated" });
+    },
+    onError: (error: unknown) => {
+      toast({
+        title: "Could not update profile",
+        description: error instanceof Error ? error.message : "Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -390,6 +400,11 @@ const ProfilePage = () => {
                       } catch (error) {
                         console.error("Error uploading avatar:", error);
                         setUploadError("There was a problem uploading your avatar. Please try again.");
+                        toast({
+                          title: "Avatar upload failed",
+                          description: "Please choose another image or try again later.",
+                          variant: "destructive",
+                        });
                       } finally {
                         setIsUploadingAvatar(false);
                         event.target.value = "";
@@ -397,7 +412,7 @@ const ProfilePage = () => {
                     }}
                   />
                   {uploadError && (
-                    <p className="text-[11px] text-destructive/80 md:text-xs">
+                    <p className="text-[11px] text-destructive/80 md:text-xs" aria-live="polite">
                       {uploadError}
                     </p>
                   )}
@@ -413,11 +428,23 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent className="p-0 pt-3 md:pt-4">
               {isRecentLoading ? (
-                <p className="text-xs text-muted-foreground md:text-sm">Loading recent tasks...</p>
+                <div className="space-y-2">
+                  <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
+                  <div className="h-4 w-1/2 rounded bg-muted/80 animate-pulse" />
+                </div>
               ) : recentError ? (
-                <p className="text-xs text-destructive/80 md:text-sm">
-                  Could not load recent tasks. Please try again later.
-                </p>
+                <div className="space-y-2 text-xs md:text-sm">
+                  <p className="text-destructive/80">
+                    Could not load recent tasks. Please try again.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => queryClient.invalidateQueries({ queryKey: ["recent-tasks", user?.id] })}
+                  >
+                    Retry
+                  </Button>
+                </div>
               ) : recentTasks.length === 0 ? (
                 <p className="text-xs text-muted-foreground md:text-sm">You haven't created any tasks yet.</p>
               ) : (
