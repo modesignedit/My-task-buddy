@@ -20,6 +20,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import useAuthState from "@/hooks/use-auth-state";
 
+
 export type TaskStatus = "pending" | "completed";
 
 export interface Task {
