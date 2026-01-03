@@ -166,6 +166,17 @@ const ProfilePage = () => {
     [counts],
   );
 
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="space-y-3 text-center">
+          <div className="mx-auto h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading your profile...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
   }
