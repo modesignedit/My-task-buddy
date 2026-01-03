@@ -180,76 +180,80 @@ const ProfilePage = () => {
         </div>
       </header>
 
-      <main className="container space-y-6 py-6">
-        <section className="grid gap-4 md:grid-cols-3 animate-enter">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Tasks</CardTitle>
-              <CardDescription>All tasks you have created.</CardDescription>
+      <main className="container space-y-5 py-5 md:space-y-6 md:py-6">
+        <section className="grid gap-3 md:grid-cols-3 md:gap-4 animate-enter">
+          <Card className="p-4 md:p-6">
+            <CardHeader className="space-y-1 p-0">
+              <CardTitle className="text-base font-semibold md:text-lg">Total Tasks</CardTitle>
+              <CardDescription className="text-xs md:text-sm">All tasks you have created.</CardDescription>
             </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <span className="text-3xl font-semibold">
+            <CardContent className="flex items-baseline justify-between p-0 pt-3 md:pt-4">
+              <span className="text-2xl font-semibold md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
                 ) : (
                   totalTasks
                 )}
               </span>
-              <Badge variant="secondary">Total</Badge>
+              <Badge variant="secondary" className="text-[10px] md:text-xs">
+                Total
+              </Badge>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Completed</CardTitle>
-              <CardDescription>Tasks you have finished.</CardDescription>
+          <Card className="p-4 md:p-6">
+            <CardHeader className="space-y-1 p-0">
+              <CardTitle className="text-base font-semibold md:text-lg">Completed</CardTitle>
+              <CardDescription className="text-xs md:text-sm">Tasks you have finished.</CardDescription>
             </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <span className="text-3xl font-semibold text-primary">
+            <CardContent className="flex items-baseline justify-between p-0 pt-3 md:pt-4">
+              <span className="text-2xl font-semibold text-primary md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
                 ) : (
                   completedTasks
                 )}
               </span>
-              <Badge>Done</Badge>
+              <Badge className="text-[10px] md:text-xs">Done</Badge>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending</CardTitle>
-              <CardDescription>Tasks still in progress.</CardDescription>
+          <Card className="p-4 md:p-6">
+            <CardHeader className="space-y-1 p-0">
+              <CardTitle className="text-base font-semibold md:text-lg">Pending</CardTitle>
+              <CardDescription className="text-xs md:text-sm">Tasks still in progress.</CardDescription>
             </CardHeader>
-            <CardContent className="flex items-baseline justify-between">
-              <span className="text-3xl font-semibold">
+            <CardContent className="flex items-baseline justify-between p-0 pt-3 md:pt-4">
+              <span className="text-2xl font-semibold md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
                 ) : (
                   pendingTasks
                 )}
               </span>
-              <Badge variant="outline">Pending</Badge>
+              <Badge variant="outline" className="text-[10px] md:text-xs">
+                Pending
+              </Badge>
             </CardContent>
           </Card>
         </section>
 
-        <section className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start animate-fade-in">
-          <Card className="space-y-4">
-            <CardHeader className="space-y-2">
-              <CardTitle>Account</CardTitle>
-              <CardDescription>Update your profile details.</CardDescription>
+        <section className="grid gap-5 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-6 items-start animate-fade-in">
+          <Card className="space-y-4 p-4 md:p-6">
+            <CardHeader className="space-y-2 p-0">
+              <CardTitle className="text-base font-semibold md:text-lg">Account</CardTitle>
+              <CardDescription className="text-xs md:text-sm">Update your profile details.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
+            <CardContent className="space-y-4 p-0 pt-3 md:pt-4">
+              <div className="flex items-center gap-3 md:gap-4">
+                <Avatar className="h-14 w-14 md:h-16 md:w-16">
                   <AvatarImage src={avatarUrl || undefined} alt={name || user?.email || "User avatar"} />
-                  <AvatarFallback className="bg-muted text-sm font-medium">
+                  <AvatarFallback className="bg-muted text-xs font-medium md:text-sm">
                     {name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Signed in as</p>
+                  <p className="text-xs text-muted-foreground md:text-sm">Signed in as</p>
                   <p className="truncate text-sm font-medium">{user?.email}</p>
                 </div>
               </div>
@@ -258,7 +262,9 @@ const ProfilePage = () => {
 
               <div className="space-y-3">
                 <div className="space-y-1">
-                  <Label htmlFor="profile-name">Display name</Label>
+                  <Label htmlFor="profile-name" className="text-xs md:text-sm">
+                    Display name
+                  </Label>
                   <Input
                     id="profile-name"
                     value={name}
@@ -267,14 +273,16 @@ const ProfilePage = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="profile-avatar">Avatar URL</Label>
+                  <Label htmlFor="profile-avatar" className="text-xs md:text-sm">
+                    Avatar URL
+                  </Label>
                   <Input
                     id="profile-avatar"
                     value={avatarUrl}
                     onChange={(e) => setAvatarUrl(e.target.value)}
                     placeholder="Link to an image for your avatar"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-[11px] text-muted-foreground md:text-xs">
                     Paste a URL to an image. File uploads can be added later with storage.
                   </p>
                 </div>
@@ -295,30 +303,35 @@ const ProfilePage = () => {
             </CardContent>
           </Card>
 
-          <Card className="space-y-4">
-            <CardHeader className="space-y-2">
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest tasks.</CardDescription>
+          <Card className="space-y-4 p-4 md:p-6">
+            <CardHeader className="space-y-2 p-0">
+              <CardTitle className="text-base font-semibold md:text-lg">Recent Activity</CardTitle>
+              <CardDescription className="text-xs md:text-sm">Your latest tasks.</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0 pt-3 md:pt-4">
               {isRecentLoading ? (
-                <p className="text-sm text-muted-foreground">Loading recent tasks...</p>
+                <p className="text-xs text-muted-foreground md:text-sm">Loading recent tasks...</p>
               ) : recentTasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">You haven't created any tasks yet.</p>
+                <p className="text-xs text-muted-foreground md:text-sm">You haven't created any tasks yet.</p>
               ) : (
-                <ul className="space-y-3">
+                <ul className="space-y-2 md:space-y-3">
                   {recentTasks.map((task) => (
                     <li
                       key={task.id}
-                      className="flex items-start justify-between gap-3 rounded-md border bg-card/60 p-3 animate-fade-in"
+                      className="flex items-start justify-between gap-2 rounded-md border bg-card/60 p-3 text-xs md:gap-3 md:p-4 md:text-sm animate-fade-in"
                     >
                       <div className="space-y-1">
-                        <p className="text-sm font-medium max-w-xs truncate">{task.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="max-w-[200px] truncate text-sm font-medium md:max-w-xs">
+                          {task.title}
+                        </p>
+                        <p className="text-[11px] text-muted-foreground md:text-xs">
                           {new Date(task.created_at).toLocaleString()}
                         </p>
                       </div>
-                      <Badge variant={task.status === "completed" ? "default" : "secondary"}>
+                      <Badge
+                        className="text-[10px] md:text-xs"
+                        variant={task.status === "completed" ? "default" : "secondary"}
+                      >
                         {task.status === "completed" ? "Completed" : "Pending"}
                       </Badge>
                     </li>
