@@ -37,7 +37,14 @@ export const LayoutShell = ({ title, description, children }: LayoutShellProps) 
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="relative min-h-screen overflow-hidden bg-background">
+      {/* Background blobs */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -left-32 -top-40 h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
+        <div className="absolute right-[-6rem] top-10 h-72 w-72 rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute bottom-[-5rem] left-10 h-72 w-72 rounded-full bg-secondary/20 blur-3xl" />
+      </div>
+
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="container flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
@@ -90,7 +97,7 @@ export const LayoutShell = ({ title, description, children }: LayoutShellProps) 
         </div>
       </header>
 
-      <main className="container space-y-6 py-6">{children}</main>
+      <main className="relative container space-y-6 py-6">{children}</main>
     </div>
   );
 };
