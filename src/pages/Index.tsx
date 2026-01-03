@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -103,7 +103,6 @@ const PaginationControls = ({ page, pageCount, onPageChange }: PaginationControl
 const Index = () => {
   const { user, loading } = useAuthState();
   const { toast } = useToast();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [title, setTitle] = useState("");
@@ -115,13 +114,13 @@ const Index = () => {
   const pageSize = 10;
 
   if (!loading && !user) {
-    navigate("/auth", { replace: true });
-    return null;
+    return <Navigate to="/auth" replace />;
   }
 
   const {
     data: tasksData,
     isLoading,
+    error: tasksError,
   } = useQuery<{ data: Task[]; count: number | null } | null>({
     queryKey: [
       "tasks",
@@ -389,6 +388,10 @@ const Index = () => {
                   <div className="h-4 w-1/3 rounded-md bg-muted animate-pulse" />
                   <div className="h-4 w-2/3 rounded-md bg-muted/80 animate-pulse" />
                   <div className="h-4 w-1/2 rounded-md bg-muted/60 animate-pulse" />
+                </div>
+              ) : tasksError ? (
+                <div className="rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+                  There was a problem loading your tasks. Please try again.
                 </div>
               ) : filteredTasks.length === 0 ? (
                 search.trim() || statusFilter !== "all" ? (
