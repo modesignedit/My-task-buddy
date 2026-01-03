@@ -28,7 +28,7 @@ const ProfilePage = () => {
   const { user, loading } = useAuthState();
   const queryClient = useQueryClient();
 
-  const { data: counts = [], isLoading: isCountsLoading } = useQuery<TaskCountRow[]>({
+  const { data: counts = [], isLoading: isCountsLoading, error: countsError } = useQuery<TaskCountRow[]>({
     queryKey: ["task-counts", user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -58,7 +58,7 @@ const ProfilePage = () => {
   });
 
 
-  const { data: profile } = useQuery<Profile | null>({
+  const { data: profile, error: profileError } = useQuery<Profile | null>({
     queryKey: ["profile", user?.id],
     queryFn: async () => {
       if (!user) return null;
@@ -78,7 +78,7 @@ const ProfilePage = () => {
     enabled: !!user,
   });
 
-  const { data: recentTasks = [], isLoading: isRecentLoading } = useQuery<
+  const { data: recentTasks = [], isLoading: isRecentLoading, error: recentError } = useQuery<
     { id: string; title: string; status: "pending" | "completed"; created_at: string }[]
   >({
     queryKey: ["recent-tasks", user?.id],
@@ -191,6 +191,8 @@ const ProfilePage = () => {
               <span className="text-2xl font-semibold md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : countsError ? (
+                  "-"
                 ) : (
                   totalTasks
                 )}
@@ -255,6 +257,11 @@ const ProfilePage = () => {
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground md:text-sm">Signed in as</p>
                   <p className="truncate text-sm font-medium">{user?.email}</p>
+                  {profileError && (
+                    <p className="mt-1 text-[11px] text-destructive/80 md:text-xs">
+                      There was a problem loading your profile details. You can still edit and save.
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -311,6 +318,10 @@ const ProfilePage = () => {
             <CardContent className="p-0 pt-3 md:pt-4">
               {isRecentLoading ? (
                 <p className="text-xs text-muted-foreground md:text-sm">Loading recent tasks...</p>
+              ) : recentError ? (
+                <p className="text-xs text-destructive/80 md:text-sm">
+                  Could not load recent tasks. Please try again later.
+                </p>
               ) : recentTasks.length === 0 ? (
                 <p className="text-xs text-muted-foreground md:text-sm">You haven't created any tasks yet.</p>
               ) : (
