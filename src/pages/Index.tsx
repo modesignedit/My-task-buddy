@@ -293,13 +293,13 @@ const Index = () => {
       <main className="container space-y-6 py-6">
         <section className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start">
           <Card className="animate-enter">
-            <CardHeader>
-              <CardTitle>Add Task</CardTitle>
-              <CardDescription>Create a new task with a status.</CardDescription>
+            <CardHeader className="space-y-1 p-4 md:p-6">
+              <CardTitle className="text-base font-semibold md:text-lg">Add Task</CardTitle>
+              <CardDescription className="text-xs md:text-sm">Create a new task with a status.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="task-title">
+            <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
+              <div className="space-y-1 md:space-y-2">
+                <label className="text-xs font-medium md:text-sm" htmlFor="task-title">
                   Title
                 </label>
                 <Input
@@ -309,8 +309,8 @@ const Index = () => {
                   placeholder="Write report, review PRs..."
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium" htmlFor="task-description">
+              <div className="space-y-1 md:space-y-2">
+                <label className="text-xs font-medium md:text-sm" htmlFor="task-description">
                   Description
                 </label>
                 <Textarea
@@ -321,11 +321,11 @@ const Index = () => {
                   rows={3}
                 />
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 <div className="space-y-1">
-                  <span className="text-sm font-medium">Status</span>
+                  <span className="text-xs font-medium md:text-sm">Status</span>
                   <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
-                    <SelectTrigger className="w-[160px]">
+                    <SelectTrigger className="w-full sm:w-[160px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -335,7 +335,7 @@ const Index = () => {
                   </Select>
                 </div>
                 <Button
-                  className="ml-auto hover-scale"
+                  className="ml-auto w-full hover-scale sm:w-auto"
                   onClick={() => createTask.mutate()}
                   disabled={createTask.isPending || !title.trim()}
                 >
@@ -345,15 +345,17 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="space-y-4 animate-enter">
-            <CardHeader className="space-y-3">
-              <div className="flex items-center justify-between gap-2">
+          <Card className="space-y-3 animate-enter">
+            <CardHeader className="space-y-2 p-4 md:p-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <CardTitle>Your Tasks</CardTitle>
-                  <CardDescription>Search and filter your task list.</CardDescription>
+                  <CardTitle className="text-base font-semibold md:text-lg">Your Tasks</CardTitle>
+                  <CardDescription className="text-xs md:text-sm">
+                    Search and filter your task list.
+                  </CardDescription>
                 </div>
               </div>
-              <div className="flex flex-col gap-3 md:flex-row md:items-center">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input
                   placeholder="Search by title or description"
                   value={search}
@@ -361,7 +363,7 @@ const Index = () => {
                     setSearch(e.target.value);
                     setPage(1);
                   }}
-                  className="md:max-w-sm"
+                  className="w-full md:max-w-sm"
                 />
                 <Select
                   value={statusFilter}
@@ -370,7 +372,7 @@ const Index = () => {
                     setPage(1);
                   }}
                 >
-                  <SelectTrigger className="w-[160px]">
+                  <SelectTrigger className="w-full sm:w-[160px]">
                     <SelectValue placeholder="Filter status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -381,7 +383,7 @@ const Index = () => {
                 </Select>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
               {isLoading ? (
                 <div className="space-y-3">
                   <div className="h-4 w-1/3 rounded-md bg-muted animate-pulse" />
@@ -390,9 +392,9 @@ const Index = () => {
                 </div>
               ) : filteredTasks.length === 0 ? (
                 search.trim() || statusFilter !== "all" ? (
-                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
-                    <p className="font-medium">No tasks match your filters</p>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
+                    <p className="text-sm font-medium md:text-base">No tasks match your filters</p>
+                    <p className="text-xs text-muted-foreground md:text-sm">
                       Try adjusting your search or status filter.
                     </p>
                     <Button
@@ -408,53 +410,56 @@ const Index = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
-                    <p className="font-medium">No tasks yet</p>
-                    <p className="text-sm text-muted-foreground">
+                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
+                    <p className="text-sm font-medium md:text-base">No tasks yet</p>
+                    <p className="text-xs text-muted-foreground md:text-sm">
                       Create your first task to get started.
                     </p>
                   </div>
                 )
               ) : (
                 <>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2 md:space-y-3">
                     {filteredTasks.map((task, index) => (
                       <li
                         key={task.id}
-                        className="flex items-start justify-between gap-3 rounded-md border bg-card/60 p-3 transition-all hover-scale animate-fade-in"
+                        className="flex items-start justify-between gap-2 rounded-md border bg-card/60 p-3 text-xs md:gap-3 md:p-4 md:text-sm transition-all hover-scale animate-fade-in"
                         style={{ animationDelay: `${index * 40}ms` }}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium truncate max-w-[200px] sm:max-w-xs md:max-w-sm">
+                            <span className="max-w-[160px] truncate font-medium sm:max-w-xs md:max-w-sm">
                               {task.title}
                             </span>
-                            <Badge variant={task.status === "completed" ? "default" : "secondary"}>
+                            <Badge
+                              className="text-[10px] md:text-xs"
+                              variant={task.status === "completed" ? "default" : "secondary"}
+                            >
                               {task.status === "completed" ? "Completed" : "Pending"}
                             </Badge>
                           </div>
                           {task.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
+                            <p className="line-clamp-2 text-[11px] text-muted-foreground md:text-xs">
                               {task.description}
                             </p>
                           )}
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-[10px] text-muted-foreground md:text-xs">
                             Created {new Date(task.created_at).toLocaleString()}
                           </p>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
+                        <div className="flex flex-col items-end gap-1 md:gap-2">
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleToggleStatus(task)}
-                            className="w-28"
+                            className="w-24 text-xs md:w-28 md:text-sm"
                           >
                             {task.status === "pending" ? "Mark done" : "Mark pending"}
                           </Button>
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="text-destructive hover:text-destructive"
+                            className="text-[11px] text-destructive hover:text-destructive md:text-xs"
                             onClick={() => deleteTask.mutate(task.id)}
                           >
                             Delete
@@ -465,7 +470,7 @@ const Index = () => {
                   </ul>
 
                   {pageCount > 1 && (
-                    <div className="pt-4 border-t">
+                    <div className="border-t pt-3 md:pt-4">
                       <PaginationControls
                         page={page}
                         pageCount={pageCount}
