@@ -251,7 +251,21 @@ const Index = () => {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Signed out",
+      description: "You have been logged out.",
+    });
   };
 
   return (
@@ -369,10 +383,14 @@ const Index = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {isLoading ? (
-                <p className="text-sm text-muted-foreground">Loading tasks...</p>
+                <div className="space-y-3">
+                  <div className="h-4 w-1/3 rounded-md bg-muted animate-pulse" />
+                  <div className="h-4 w-2/3 rounded-md bg-muted/80 animate-pulse" />
+                  <div className="h-4 w-1/2 rounded-md bg-muted/60 animate-pulse" />
+                </div>
               ) : filteredTasks.length === 0 ? (
                 search.trim() || statusFilter !== "all" ? (
-                  <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
+                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
                     <p className="font-medium">No tasks match your filters</p>
                     <p className="text-sm text-muted-foreground">
                       Try adjusting your search or status filter.
@@ -390,7 +408,7 @@ const Index = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
+                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-6 text-center">
                     <p className="font-medium">No tasks yet</p>
                     <p className="text-sm text-muted-foreground">
                       Create your first task to get started.
