@@ -17,9 +17,10 @@ const ThemeToggle = () => {
 
   return (
     <Button
+      type="button"
       variant="outline"
       size="icon"
-      className="hover-scale"
+      className="relative hover-scale"
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
     >
@@ -28,6 +29,7 @@ const ThemeToggle = () => {
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
+
 };
 
 export default ThemeToggle;

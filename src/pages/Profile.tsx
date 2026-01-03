@@ -29,9 +29,14 @@ const ProfilePage = () => {
   const queryClient = useQueryClient();
 
   const { data: counts = [], isLoading: isCountsLoading } = useQuery<TaskCountRow[]>({
-    queryKey: ["task-counts"],
+    queryKey: ["task-counts", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase.from("tasks").select("status, id");
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("status, id")
+        .eq("user_id", user.id);
 
       if (error) {
         throw error;
@@ -51,6 +56,7 @@ const ProfilePage = () => {
     },
     enabled: !!user,
   });
+
 
   const { data: profile } = useQuery<Profile | null>({
     queryKey: ["profile", user?.id],
@@ -75,11 +81,14 @@ const ProfilePage = () => {
   const { data: recentTasks = [], isLoading: isRecentLoading } = useQuery<
     { id: string; title: string; status: "pending" | "completed"; created_at: string }[]
   >({
-    queryKey: ["recent-tasks"],
+    queryKey: ["recent-tasks", user?.id],
     queryFn: async () => {
+      if (!user) return [];
+
       const { data, error } = await supabase
         .from("tasks")
         .select("id, title, status, created_at")
+        .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(5);
 
@@ -95,6 +104,7 @@ const ProfilePage = () => {
     },
     enabled: !!user,
   });
+
 
   const [name, setName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
@@ -127,6 +137,7 @@ const ProfilePage = () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
     },
   });
+
 
   const totalTasks = useMemo(
     () => counts.reduce((sum, row) => sum + row.count, 0),

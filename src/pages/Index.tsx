@@ -115,6 +115,7 @@ const Index = () => {
 
   if (!loading && !user) {
     navigate("/auth", { replace: true });
+    return null;
   }
 
   const {
