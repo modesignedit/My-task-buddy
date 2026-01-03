@@ -212,6 +212,8 @@ const ProfilePage = () => {
               <span className="text-2xl font-semibold text-primary md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : countsError ? (
+                  "-"
                 ) : (
                   completedTasks
                 )}
@@ -229,6 +231,8 @@ const ProfilePage = () => {
               <span className="text-2xl font-semibold md:text-3xl">
                 {isCountsLoading ? (
                   <span className="inline-block h-8 w-10 rounded-md bg-muted animate-pulse" />
+                ) : countsError ? (
+                  "-"
                 ) : (
                   pendingTasks
                 )}
