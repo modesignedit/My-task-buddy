@@ -104,17 +104,29 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Card className="w-full max-w-md animate-fade-in shadow-lg">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-2xl font-semibold">Task Manager</CardTitle>
-          <CardDescription>Sign in or create an account to manage your tasks.</CardDescription>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-32 -top-40 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute right-[-6rem] top-10 h-72 w-72 rounded-full bg-accent/25 blur-3xl" />
+        <div className="absolute bottom-[-5rem] left-10 h-72 w-72 rounded-full bg-secondary/25 blur-3xl" />
+      </div>
+
+      <Card className="relative z-10 w-full max-w-md glass-panel accent-ring animate-fade-in">
+        <CardHeader className="space-y-2 pb-2 text-center">
+          <CardTitle className="text-3xl font-semibold tracking-tight">TaskFlow</CardTitle>
+          <CardDescription className="text-sm text-muted-foreground">
+            Your personal command center. Built for messy brains and big dreams.
+          </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-2">
           <Tabs defaultValue="login" className="w-full">
             <TabsList className="grid w-full grid-cols-2" aria-busy={submitting}>
-              <TabsTrigger value="login" disabled={submitting}>Login</TabsTrigger>
-              <TabsTrigger value="signup" disabled={submitting}>Sign Up</TabsTrigger>
+              <TabsTrigger value="login" disabled={submitting}>
+                Login
+              </TabsTrigger>
+              <TabsTrigger value="signup" disabled={submitting}>
+                Sign Up
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="login" className="space-y-4 pt-4">
               <div className="space-y-2">
@@ -140,7 +152,7 @@ const AuthPage = () => {
                 />
               </div>
               <Button className="w-full" onClick={handleSignIn} disabled={submitting}>
-                {submitting ? "Signing in..." : "Login"}
+                {submitting ? "Beaming you in..." : "Login"}
               </Button>
             </TabsContent>
             <TabsContent value="signup" className="space-y-4 pt-4">
@@ -167,7 +179,7 @@ const AuthPage = () => {
                 />
               </div>
               <Button className="w-full" onClick={handleSignUp} disabled={submitting}>
-                {submitting ? "Creating account..." : "Sign Up"}
+                {submitting ? "Spinning up your space..." : "Sign Up"}
               </Button>
             </TabsContent>
           </Tabs>

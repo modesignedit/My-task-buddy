@@ -38,36 +38,52 @@ export const LayoutShell = ({ title, description, children }: LayoutShellProps) 
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/60 backdrop-blur">
-        <div className="container flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="container flex flex-col gap-3 py-3 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
-            {title && <h1 className="text-xl font-semibold tracking-tight">{title}</h1>}
-            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 pulse" />
+              <span>TaskFlow · live</span>
+            </div>
+            {title && (
+              <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
+                {title}
+              </h1>
+            )}
+            {description && (
+              <p className="max-w-md text-sm text-muted-foreground">{description}</p>
+            )}
           </div>
+
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:justify-end">
-            <nav className="flex items-center gap-1 sm:gap-2">
-              <Button asChild variant="ghost" size="sm">
+            <nav className="flex items-center gap-1 rounded-full bg-muted/70 p-1">
+              <Button asChild variant="ghost" size="sm" className="rounded-full px-3 text-xs sm:text-sm">
                 <NavLink
                   to="/"
-                  className="hover-scale px-2 sm:px-3"
-                  activeClassName="bg-muted text-foreground"
                   end
+                  className="hover-scale rounded-full"
+                  activeClassName="bg-background text-foreground shadow-sm"
                 >
                   Dashboard
                 </NavLink>
               </Button>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="rounded-full px-3 text-xs sm:text-sm">
                 <NavLink
                   to="/profile"
-                  className="hover-scale px-2 sm:px-3"
-                  activeClassName="bg-muted text-foreground"
+                  className="hover-scale rounded-full"
+                  activeClassName="bg-background text-foreground shadow-sm"
                 >
                   Profile
                 </NavLink>
               </Button>
             </nav>
             <ThemeToggle />
-            <Button variant="outline" size="sm" onClick={handleLogout}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="rounded-full border-border/70 bg-background/60 text-xs sm:text-sm hover:bg-background"
+            >
               Logout
             </Button>
           </div>

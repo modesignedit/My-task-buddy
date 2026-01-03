@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import useAuthState from "@/hooks/use-auth-state";
-import ThemeToggle from "@/components/ThemeToggle";
+import { LayoutShell } from "@/components/LayoutShell";
 
 export type TaskStatus = "pending" | "completed";
 
@@ -244,24 +244,6 @@ const Index = () => {
     });
   };
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      toast({
-        title: "Error signing out",
-        description: error.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Signed out",
-      description: "You have been logged out.",
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -278,234 +260,213 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card/60 backdrop-blur">
-        <div className="container flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight">Task Dashboard</h1>
-            <p className="text-sm text-muted-foreground">Manage your tasks and track your progress.</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:justify-end">
-            <ThemeToggle />
-            <Button variant="ghost" asChild>
-              <Link to="/profile" className="hover-scale">
-                Profile
-              </Link>
-            </Button>
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container space-y-6 py-6">
-        <section className="grid gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-start">
-          <Card className="animate-enter">
-            <CardHeader className="space-y-1 p-4 md:p-6">
-              <CardTitle className="text-base font-semibold md:text-lg">Add Task</CardTitle>
-              <CardDescription className="text-xs md:text-sm">Create a new task with a status.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
-              <div className="space-y-1 md:space-y-2">
-                <label className="text-xs font-medium md:text-sm" htmlFor="task-title">
-                  Title
-                </label>
-                <Input
-                  id="task-title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Write report, review PRs..."
-                />
-              </div>
-              <div className="space-y-1 md:space-y-2">
-                <label className="text-xs font-medium md:text-sm" htmlFor="task-description">
-                  Description
-                </label>
-                <Textarea
-                  id="task-description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Optional details for this task"
-                  rows={3}
-                />
-              </div>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-                <div className="space-y-1">
-                  <span className="text-xs font-medium md:text-sm">Status</span>
-                  <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
-                    <SelectTrigger className="w-full sm:w-[160px]">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  className="ml-auto w-full hover-scale sm:w-auto"
-                  onClick={() => createTask.mutate()}
-                  disabled={createTask.isPending || !title.trim()}
-                >
-                  {createTask.isPending ? "Creating..." : "Add Task"}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="space-y-3 animate-enter">
-            <CardHeader className="space-y-2 p-4 md:p-6">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <CardTitle className="text-base font-semibold md:text-lg">Your Tasks</CardTitle>
-                  <CardDescription className="text-xs md:text-sm">
-                    Search and filter your task list.
-                  </CardDescription>
-                </div>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Input
-                  placeholder="Search by title or description"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setPage(1);
-                  }}
-                  className="w-full md:max-w-sm"
-                />
-                <Select
-                  value={statusFilter}
-                  onValueChange={(value) => {
-                    setStatusFilter(value as "all" | TaskStatus);
-                    setPage(1);
-                  }}
-                >
+    <LayoutShell
+      title="Dashboard"
+      description="Capture your brain dumps, ship your tasks, and keep your flow clean."
+    >
+      <section className="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <Card className="glass-panel animate-enter">
+          <CardHeader className="space-y-1 p-4 md:p-6">
+            <CardTitle className="text-base font-semibold md:text-lg">Add task, clear brain</CardTitle>
+            <CardDescription className="text-xs md:text-sm">
+              Drop a thought, pick a vibe, ship it later.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
+            <div className="space-y-1 md:space-y-2">
+              <label className="text-xs font-medium md:text-sm" htmlFor="task-title">
+                Title
+              </label>
+              <Input
+                id="task-title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Write report, review PRs..."
+              />
+            </div>
+            <div className="space-y-1 md:space-y-2">
+              <label className="text-xs font-medium md:text-sm" htmlFor="task-description">
+                Description
+              </label>
+              <Textarea
+                id="task-description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Optional details for this task"
+                rows={3}
+              />
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <div className="space-y-1">
+                <span className="text-xs font-medium md:text-sm">Status</span>
+                <Select value={status} onValueChange={(value) => setStatus(value as TaskStatus)}>
                   <SelectTrigger className="w-full sm:w-[160px]">
-                    <SelectValue placeholder="Filter status" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="completed">Completed</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </CardHeader>
-            <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
-              {isLoading ? (
-                <div className="space-y-3">
-                  <div className="h-4 w-1/3 rounded-md bg-muted animate-pulse" />
-                  <div className="h-4 w-2/3 rounded-md bg-muted/80 animate-pulse" />
-                  <div className="h-4 w-1/2 rounded-md bg-muted/60 animate-pulse" />
-                </div>
-              ) : tasksError ? (
-                <div className="flex flex-col gap-2 rounded-md border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
-                  <p>There was a problem loading your tasks.</p>
+              <Button
+                className="ml-auto w-full bg-gradient-to-r from-primary via-accent to-secondary text-primary-foreground shadow-lg shadow-primary/40 hover-scale sm:w-auto"
+                onClick={() => createTask.mutate()}
+                disabled={createTask.isPending || !title.trim()}
+              >
+                {createTask.isPending ? "Creating..." : "Add task"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-panel space-y-3 animate-enter">
+          <CardHeader className="space-y-2 p-4 md:p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle className="text-base font-semibold md:text-lg">Your tasks</CardTitle>
+                <CardDescription className="text-xs md:text-sm">
+                  Search and filter your task list.
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Input
+                placeholder="Search by title or description"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full md:max-w-sm"
+              />
+              <Select
+                value={statusFilter}
+                onValueChange={(value) => {
+                  setStatusFilter(value as "all" | TaskStatus);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="w-full sm:w-[160px]">
+                  <SelectValue placeholder="Filter status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3 p-4 pt-0 md:space-y-4 md:p-6 md:pt-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                <div className="h-4 w-1/3 rounded-md bg-muted animate-pulse" />
+                <div className="h-4 w-2/3 rounded-md bg-muted/80 animate-pulse" />
+                <div className="h-4 w-1/2 rounded-md bg-muted/60 animate-pulse" />
+              </div>
+            ) : tasksError ? (
+              <div className="flex flex-col gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+                <p>Dang. Your tasks didn&apos;t load.</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="self-start"
+                  onClick={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+                >
+                  Try again
+                </Button>
+              </div>
+            ) : filteredTasks.length === 0 ? (
+              search.trim() || statusFilter !== "all" ? (
+                <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
+                  <p className="text-sm font-medium md:text-base">No tasks match your filters</p>
+                  <p className="text-xs text-muted-foreground md:text-sm">
+                    Try adjusting your search or status filter.
+                  </p>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="self-start"
-                    onClick={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+                    onClick={() => {
+                      setSearch("");
+                      setStatusFilter("all");
+                      setPage(1);
+                    }}
                   >
-                    Try again
+                    Clear filters
                   </Button>
                 </div>
-              ) : filteredTasks.length === 0 ? (
-                search.trim() || statusFilter !== "all" ? (
-                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
-                    <p className="text-sm font-medium md:text-base">No tasks match your filters</p>
-                    <p className="text-xs text-muted-foreground md:text-sm">
-                      Try adjusting your search or status filter.
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSearch("");
-                        setStatusFilter("all");
-                        setPage(1);
-                      }}
-                    >
-                      Clear filters
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
-                    <p className="text-sm font-medium md:text-base">No tasks yet</p>
-                    <p className="text-xs text-muted-foreground md:text-sm">
-                      Create your first task to get started.
-                    </p>
-                  </div>
-                )
               ) : (
-                <>
-                  <ul className="space-y-2 md:space-y-3">
-                    {filteredTasks.map((task, index) => (
-                      <li
-                        key={task.id}
-                        className="flex items-start justify-between gap-2 rounded-md border bg-card/60 p-3 text-xs md:gap-3 md:p-4 md:text-sm transition-all hover-scale animate-fade-in"
-                        style={{ animationDelay: `${index * 40}ms` }}
-                      >
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="max-w-[160px] truncate font-medium sm:max-w-xs md:max-w-sm">
-                              {task.title}
-                            </span>
-                            <Badge
-                              className="text-[10px] md:text-xs"
-                              variant={task.status === "completed" ? "default" : "secondary"}
-                            >
-                              {task.status === "completed" ? "Completed" : "Pending"}
-                            </Badge>
-                          </div>
-                          {task.description && (
-                            <p className="line-clamp-2 text-[11px] text-muted-foreground md:text-xs">
-                              {task.description}
-                            </p>
-                          )}
-                          <p className="text-[10px] text-muted-foreground md:text-xs">
-                            Created {new Date(task.created_at).toLocaleString()}
+                <div className="mx-auto flex max-w-md flex-col items-center justify-center gap-2 rounded-md border border-dashed bg-muted/40 p-5 text-center md:p-6">
+                  <p className="text-sm font-medium md:text-base">No tasks yet</p>
+                  <p className="text-xs text-muted-foreground md:text-sm">
+                    No brain dumps on record. Yet.
+                  </p>
+                </div>
+              )
+            ) : (
+              <>
+                <ul className="space-y-2 md:space-y-3">
+                  {filteredTasks.map((task, index) => (
+                    <li
+                      key={task.id}
+                      className="flex items-start justify-between gap-2 rounded-xl border border-border/70 bg-card/70 p-3 text-xs transition-all hover-scale md:gap-3 md:p-4 md:text-sm"
+                      style={{ animationDelay: `${index * 40}ms` }}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="max-w-[160px] truncate font-medium sm:max-w-xs md:max-w-sm">
+                            {task.title}
+                          </span>
+                          <Badge
+                            className="text-[10px] md:text-xs"
+                            variant={task.status === "completed" ? "default" : "outline"}
+                          >
+                            {task.status === "completed" ? "done" : "in progress"}
+                          </Badge>
+                        </div>
+                        {task.description && (
+                          <p className="line-clamp-2 text-[11px] text-muted-foreground md:text-xs">
+                            {task.description}
                           </p>
-                        </div>
-                        <div className="flex flex-col items-end gap-1 md:gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleToggleStatus(task)}
-                            className="w-24 text-xs md:w-28 md:text-sm"
-                          >
-                            {task.status === "pending" ? "Mark done" : "Mark pending"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-[11px] text-destructive hover:text-destructive md:text-xs"
-                            onClick={() => deleteTask.mutate(task.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                        )}
+                        <p className="text-[10px] text-muted-foreground md:text-xs">
+                          Created {new Date(task.created_at).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1 md:gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleToggleStatus(task)}
+                          className="w-24 text-xs md:w-28 md:text-sm"
+                        >
+                          {task.status === "pending" ? "Mark done" : "Mark pending"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-[11px] text-destructive hover:text-destructive md:text-xs"
+                          onClick={() => deleteTask.mutate(task.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
 
-                  {pageCount > 1 && (
-                    <div className="border-t pt-3 md:pt-4">
-                      <PaginationControls
-                        page={page}
-                        pageCount={pageCount}
-                        onPageChange={setPage}
-                      />
-                    </div>
-                  )}
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </section>
-      </main>
-    </div>
+                {pageCount > 1 && (
+                  <div className="border-t pt-3 md:pt-4">
+                    <PaginationControls page={page} pageCount={pageCount} onPageChange={setPage} />
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </section>
+    </LayoutShell>
   );
 };
 

@@ -101,6 +101,11 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at 0 0, hsl(330 81% 60% / 0.14), transparent 55%),
+      radial-gradient(circle at 100% 0, hsl(260 84% 70% / 0.18), transparent 50%),
+      radial-gradient(circle at 0 100%, hsl(190 90% 70% / 0.18), transparent 50%);
+    background-attachment: fixed;
   }
 }
 
@@ -116,5 +121,13 @@ All colors MUST be HSL.
 
   .pulse {
     @apply animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite];
+  }
+
+  .glass-panel {
+    @apply bg-card/70 border border-border/60 backdrop-blur-xl shadow-lg shadow-primary/20;
+  }
+
+  .accent-ring {
+    @apply ring-1 ring-primary/30 shadow-xl shadow-primary/40;
   }
 }
